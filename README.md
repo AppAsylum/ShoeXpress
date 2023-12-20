@@ -1,82 +1,11 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+<img width="400" alt="Screen Shot 2023-12-20 at 8 28 23 AM" src="https://github.com/AppAsylum/ShoeXpress/assets/145500150/0ffc229a-0112-4c9d-8732-a78b15e4e91c">
 
-# Getting Started
+<img width="388" alt="Screen Shot 2023-12-20 at 8 29 50 AM" src="https://github.com/AppAsylum/ShoeXpress/assets/145500150/1fc9dc22-eb06-40ab-b2ca-841575255983">
 
->**Note**: Make sure you have completed the [React Native - Environment Setup](https://reactnative.dev/docs/environment-setup) instructions till "Creating a new application" step, before proceeding.
+<img width="391" alt="Screen Shot 2023-12-20 at 8 32 33 AM" src="https://github.com/AppAsylum/ShoeXpress/assets/145500150/884e083d-c4c5-4a83-81d4-97d94f006513">
 
-## Step 1: Start the Metro Server
+<img width="399" alt="Screen Shot 2023-12-20 at 8 35 58 AM" src="https://github.com/AppAsylum/ShoeXpress/assets/145500150/cf5bb2a0-3e53-445e-8f51-b50ba75c99b0">
 
-First, you will need to start **Metro**, the JavaScript _bundler_ that ships _with_ React Native.
+<img width="394" alt="Screen Shot 2023-12-20 at 8 40 13 AM" src="https://github.com/AppAsylum/ShoeXpress/assets/145500150/bd1e409f-e123-45e2-bec8-03dcfac2b525">
 
-To start Metro, run the following command from the _root_ of your React Native project:
-
-```bash
-# using npm
-npm start
-
-# OR using Yarn
-yarn start
-```
-
-## Step 2: Start your Application
-
-Let Metro Bundler run in its _own_ terminal. Open a _new_ terminal from the _root_ of your React Native project. Run the following command to start your _Android_ or _iOS_ app:
-
-### For Android
-
-```bash
-# using npm
-npm run android
-
-# OR using Yarn
-yarn android
-```
-
-### For iOS
-
-```bash
-# using npm
-npm run ios
-
-# OR using Yarn
-yarn ios
-```
-
-If everything is set up _correctly_, you should see your new app running in your _Android Emulator_ or _iOS Simulator_ shortly provided you have set up your emulator/simulator correctly.
-
-This is one way to run your app — you can also run it directly from within Android Studio and Xcode respectively.
-
-## Step 3: Modifying your App
-
-Now that you have successfully run the app, let's modify it.
-
-1. Open `App.tsx` in your text editor of choice and edit some lines.
-2. For **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Developer Menu** (<kbd>Ctrl</kbd> + <kbd>M</kbd> (on Window and Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (on macOS)) to see your changes!
-
-   For **iOS**: Hit <kbd>Cmd ⌘</kbd> + <kbd>R</kbd> in your iOS Simulator to reload the app and see your changes!
-
-## Congratulations! :tada:
-
-You've successfully run and modified your React Native App. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [Introduction to React Native](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you can't get this to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
-# ShoeXpress
-# ShoeXpress
-# ShoeXpress
+<img width="399" alt="Screen Shot 2023-12-20 at 8 41 09 AM" src="https://github.com/AppAsylum/ShoeXpress/assets/145500150/0d770d8d-f6bb-4b30-8a54-035e8eb42772">
