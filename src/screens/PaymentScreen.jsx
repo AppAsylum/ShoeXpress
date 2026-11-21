@@ -1,295 +1,242 @@
 import React, {useState} from 'react';
-import {ScrollView, StatusBar, StyleSheet, Text, View, Image, TouchableOpacity} from 'react-native';
-import {SafeAreaView} from 'react-native-safe-area-context';
-import {
-  BORDERRADIUS,
-  COLORS,
-  FONTFAMILY,
-  FONTSIZE,
-  SPACING,
-} from '../Constants/theme';
-import PaymentMethod from '../components/PaymentMethod';
-import PaymentFooter from '../components/PaymentFooter';
+import {ScrollView, StyleSheet, Text, View} from 'react-native';
+import {SafeAreaView, useSafeAreaInsets} from 'react-native-safe-area-context';
 import {LinearGradient} from 'expo-linear-gradient';
+import {Ionicons} from '@expo/vector-icons';
+import {StatusBar} from 'expo-status-bar';
+import * as Haptics from 'expo-haptics';
 import {useStore} from '../store/store';
-import PopUpAnimation from '../components/PopUpAnimation';
+import ScreenHeader from '../components/ui/ScreenHeader';
+import Button from '../components/ui/Button';
+import PressableScale from '../components/ui/PressableScale';
+import SuccessOverlay from '../components/SuccessOverlay';
+import {LogoMark} from '../components/ui/Logo';
+import {fakeRequest} from '../utils/validation';
+import {COLORS, FONTFAMILY, FONTSIZE, RADIUS, SPACING, TYPE} from '../Constants/theme';
 
-const PaymentList = [
-  {
-    name: 'Wallet',
-    icon: 'icon',
-    isIcon: true,
-  },
-  {
-    name: 'Google Pay',
-    icon: require('../assets/app_images/gpay.png'),
-    isIcon: false,
-  },
-  {
-    name: 'Apple Pay',
-    icon: require('../assets/app_images/applepay.png'),
-    isIcon: false,
-  },
-  {
-    name: 'Amazon Pay',
-    icon: require('../assets/app_images/amazonpay.png'),
-    isIcon: false,
-  },
+const METHODS = [
+  {key: 'card', label: 'Credit card', detail: 'Visa •••• 4638', icon: 'card-outline'},
+  {key: 'apple', label: 'Apple Pay', detail: 'Pay with Face ID', icon: 'logo-apple'},
+  {key: 'google', label: 'Google Pay', detail: 'Pay with your Google account', icon: 'logo-google'},
+  {key: 'wallet', label: 'ShoeXpress Wallet', detail: 'Balance $250.00', icon: 'wallet-outline'},
 ];
 
-const backIcon = require('../assets/icons/left.png');
-const visaIcon = require('../assets/icons/visa.png');
-const chipIcon = require('../assets/icons/chip.png');
+const PaymentCard = ({active}) => (
+  <LinearGradient
+    colors={['#23232A', '#121215']}
+    start={{x: 0, y: 0}}
+    end={{x: 1, y: 1}}
+    style={[styles.card, active && styles.cardActive]}>
+    <View style={styles.cardGlow} />
+    <View style={styles.cardWatermark}>
+      <LogoMark size={190} color="rgba(212,255,58,0.08)" cutColor="transparent" />
+    </View>
+    <View style={styles.cardTop}>
+      <Ionicons name="hardware-chip-outline" size={30} color={COLORS.star} />
+      <Text style={styles.visa}>VISA</Text>
+    </View>
+    <Text style={styles.cardNumber}>9823  8732  6745  4638</Text>
+    <View style={styles.cardBottom}>
+      <View>
+        <Text style={styles.cardLabel}>Card holder</Text>
+        <Text style={styles.cardValue}>Fadiora Oluwasegun</Text>
+      </View>
+      <View style={{alignItems: 'flex-end'}}>
+        <Text style={styles.cardLabel}>Expires</Text>
+        <Text style={styles.cardValue}>02/30</Text>
+      </View>
+    </View>
+  </LinearGradient>
+);
 
 const PaymentScreen = ({navigation, route}) => {
-  const calculateCartPrice = useStore(state => state.calculateCartPrice);
-  const addToOrderHistoryListFromCart = useStore(
-    state => state.addToOrderHistoryListFromCart,
-  );
-  const [paymentMode, setPaymentMode] = useState('Credit Card');
-  const [showAnimation, setShowAnimation] = useState(false);
+  const insets = useSafeAreaInsets();
+  const amount = route.params?.amount ?? useStore.getState().CartPrice;
+  const [method, setMethod] = useState('card');
+  const [processing, setProcessing] = useState(false);
+  const [done, setDone] = useState(false);
+  const selected = METHODS.find(m => m.key === method);
 
-  const buttonPressHandler = () => {
-    setShowAnimation(true);
-    addToOrderHistoryListFromCart();
-    calculateCartPrice();
-    setTimeout(() => {
-      setShowAnimation(false);
-      navigation.popTo('Tab', {screen: 'History'});
-    }, 2000);
+  const pay = async () => {
+    setProcessing(true);
+    await fakeRequest(1200);
+    useStore.getState().calculateCartPrice();
+    useStore.getState().addToOrderHistoryListFromCart();
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+    setProcessing(false);
+    setDone(true);
+    setTimeout(() => navigation.popTo('Tab', {screen: 'History'}), 1700);
   };
 
   return (
-    <SafeAreaView style={styles.screenContainer}>
-      <StatusBar backgroundColor={COLORS.primaryBlackRGBA} />
-      {showAnimation ? (
-        <PopUpAnimation
-          style={styles.lottieAnimation}
-          source={require('../lottie/successful.json')}
-        />
-      ) : (
-        <></>
-      )}
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollViewFlex}>
-        <View style={styles.headerContainer}>
-          <TouchableOpacity
-            onPress={() => {
-              navigation.pop();
-            }}
-            style={{
-              borderWidth: 2,
-              borderColor: COLORS.secondaryDarkGreyHex,
-              borderRadius: SPACING.space_12,
-              backgroundColor: COLORS.primaryBlackRGBA,
-              overflow: 'hidden',
-              justifyContent: 'center',
-              alignItems: 'center',
-              height: SPACING.space_36,
-              width: SPACING.space_36,
-            }}>
-            <Image
-              source={backIcon}
-              style={{
-                height: SPACING.space_24,
-                width: SPACING.space_24,
-              }}
-              tintColor={COLORS.primaryLightGreyHex}
-            />
-          </TouchableOpacity>
-          <Text style={styles.headerText}>Payments</Text>
-          <View style={styles.emptyView} />
-        </View>
+    <SafeAreaView style={styles.screen} edges={['top']}>
+      <StatusBar style="light" />
+      <ScrollView contentContainerStyle={{paddingBottom: 140 + insets.bottom}} showsVerticalScrollIndicator={false}>
+        <ScreenHeader title="Payment" subtitle="Choose how you’d like to pay" onBack={() => navigation.goBack()} />
 
-        <View style={styles.paymentOptionsContainer}>
-          <TouchableOpacity
-            onPress={() => {
-              setPaymentMode('Credit Card');
-            }}>
-            <View
-              style={[
-                styles.creditCardContainer,
-                {
-                  borderColor:
-                    paymentMode == 'Credit Card'
-                      ? COLORS.primaryOrangeHex
-                      : COLORS.primaryGreyHex,
-                },
-              ]}>
-              <Text style={styles.creditCardTitle}>Credit Card</Text>
-              <View style={styles.creditCardBg}>
-                <LinearGradient
-                  start={{x: 0, y: 0}}
-                  end={{x: 1, y: 1}}
-                  style={styles.linearGradientStyle}
-                  colors={[COLORS.primaryGreyHex, COLORS.primaryBlackHex]}>
-                  <View style={styles.creditCardRow}>
-                    <Image
-                      source={chipIcon}
-                      style={{
-                        height: FONTSIZE.size_20 * 2,
-                        width: FONTSIZE.size_20 * 2,
-                      }}
-                    />
-                    <Image
-                      source={visaIcon}
-                      style={{
-                        height: FONTSIZE.size_30 * 2,
-                        width: FONTSIZE.size_30 * 2,
-                      }}
-                      tintColor={COLORS.primaryWhiteHex}
-                    />
+        <View style={styles.body}>
+          <PressableScale onPress={() => setMethod('card')} scaleTo={0.98}>
+            <PaymentCard active={method === 'card'} />
+          </PressableScale>
+
+          <Text style={styles.section}>Payment method</Text>
+          <View style={styles.methods}>
+            {METHODS.map(m => {
+              const active = m.key === method;
+              return (
+                <PressableScale
+                  key={m.key}
+                  onPress={() => setMethod(m.key)}
+                  scaleTo={0.98}
+                  accessibilityRole="radio"
+                  accessibilityState={{checked: active}}
+                  style={[styles.method, active && styles.methodActive]}>
+                  <View style={[styles.methodIcon, active && {backgroundColor: COLORS.accent}]}>
+                    <Ionicons name={m.icon} size={20} color={active ? COLORS.onAccent : COLORS.text} />
                   </View>
-                  <View style={styles.creditCardNumberContainer}>
-                    <Text style={styles.creditCardNumber}>9823</Text>
-                    <Text style={styles.creditCardNumber}>8732</Text>
-                    <Text style={styles.creditCardNumber}>6745</Text>
-                    <Text style={styles.creditCardNumber}>4638</Text>
+                  <View style={{flex: 1}}>
+                    <Text style={styles.methodLabel}>{m.label}</Text>
+                    <Text style={styles.methodDetail}>{m.detail}</Text>
                   </View>
-                  <View style={styles.creditCardFooterRow}>
-                    <View>
-                      <Text style={styles.creditCardNameSubTitle}>
-                        Card Holder Name
-                      </Text>
-                      <Text style={styles.creditCardNameTitle}>
-                        Fadiora Oluwasegun
-                      </Text>
-                    </View>
-                    <View style={styles.dateContainer}>
-                      <Text style={styles.creditCardDateSubTitle}>
-                        Expiry Date
-                      </Text>
-                      <Text style={styles.creditCardDateTitle}>02/30</Text>
-                    </View>
+                  <View style={[styles.radio, active && styles.radioActive]}>
+                    {active && <View style={styles.radioDot} />}
                   </View>
-                </LinearGradient>
-              </View>
+                </PressableScale>
+              );
+            })}
+          </View>
+
+          <View style={styles.summary}>
+            <View style={styles.row}>
+              <Text style={styles.rowLabel}>Subtotal</Text>
+              <Text style={styles.rowValue}>${amount}</Text>
             </View>
-          </TouchableOpacity>
-          {PaymentList.map(data => (
-            <TouchableOpacity
-              onPress={() => {
-                setPaymentMode(data.name);
-              }}
-              key={data.name}>
-              <PaymentMethod
-                paymentMode={paymentMode}
-                name={data.name}
-                icon={data.icon}
-                isIcon={data.isIcon}
-              />
-            </TouchableOpacity>
-          ))}
+            <View style={styles.row}>
+              <Text style={styles.rowLabel}>Delivery</Text>
+              <Text style={[styles.rowValue, {color: COLORS.accent}]}>Free</Text>
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.rowLabel}>Estimated arrival</Text>
+              <Text style={styles.rowValue}>2–4 days</Text>
+            </View>
+          </View>
+          <View style={styles.secure}>
+            <Ionicons name="lock-closed" size={12} color={COLORS.textFaint} />
+            <Text style={TYPE.caption}>Payments are encrypted and secure</Text>
+          </View>
         </View>
       </ScrollView>
-      <PaymentFooter
-        buttonTitle={`Pay with ${paymentMode}`}
-        price={{price: route.params.amount, currency: '$'}}
-        buttonPressHandler={buttonPressHandler}
-      />
+
+      <View style={[styles.bottomBar, {paddingBottom: insets.bottom + SPACING.sm}]}>
+        <View>
+          <Text style={styles.rowLabel}>Total</Text>
+          <Text style={styles.total}>${amount}</Text>
+        </View>
+        <Button
+          title={processing ? 'Processing…' : `Pay with ${selected.label.replace('ShoeXpress ', '')}`}
+          onPress={pay}
+          loading={processing}
+          style={{flex: 1}}
+        />
+      </View>
+
+      {done && <SuccessOverlay title="Order confirmed" subtitle="Thanks for shopping with ShoeXpress. Your shoes are on the way." />}
     </SafeAreaView>
   );
 };
 
-const styles = StyleSheet.create({
-  screenContainer: {
-    flex: 1,
-    backgroundColor: COLORS.primaryBlackHex,
-  },
-  lottieAnimation: {
-    flex: 1,
-  },
-  scrollViewFlex: {
-    flexGrow: 1,
-  },
-  headerContainer: {
-    paddingHorizontal: SPACING.space_24,
-    paddingVertical: SPACING.space_15,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  headerText: {
-    fontFamily: FONTFAMILY.poppins_semibold,
-    fontSize: FONTSIZE.size_20,
-    color: COLORS.primaryWhiteHex,
-  },
-  emptyView: {
-    height: SPACING.space_36,
-    width: SPACING.space_36,
-  },
-  paymentOptionsContainer: {
-    padding: SPACING.space_15,
-    gap: SPACING.space_15,
-  },
-  creditCardContainer: {
-    padding: SPACING.space_10,
-    gap: SPACING.space_10,
-    borderRadius: BORDERRADIUS.radius_25,
-    borderWidth: 3,
-  },
-  creditCardTitle: {
-    fontFamily: FONTFAMILY.poppins_semibold,
-    fontSize: FONTSIZE.size_14,
-    color: COLORS.primaryWhiteHex,
-    marginLeft: SPACING.space_10,
-  },
-  creditCardBg: {
-    backgroundColor: COLORS.primaryGreyHex,
-    borderRadius: BORDERRADIUS.radius_25,
-  },
-  linearGradientStyle: {
-    borderRadius: BORDERRADIUS.radius_25,
-    gap: SPACING.space_36,
-    paddingHorizontal: SPACING.space_15,
-    paddingVertical: SPACING.space_10,
-  },
-  creditCardRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    // backgroundColor: 'red'
-  },
-  creditCardNumberContainer: {
-    flexDirection: 'row',
-    gap: SPACING.space_10,
-    alignItems: 'center',
-  },
-  creditCardFooterRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  creditCardNumber: {
-    fontFamily: FONTFAMILY.poppins_semibold,
-    fontSize: FONTSIZE.size_18,
-    color: COLORS.primaryWhiteHex,
-    letterSpacing: SPACING.space_4 + SPACING.space_2,
-  },
-  creditCardNameTitle: {
-    fontFamily: FONTFAMILY.poppins_semibold,
-    fontSize: FONTSIZE.size_14,
-    color: COLORS.primaryWhiteHex,
-  },
-  creditCardNameSubTitle: {
-    fontFamily: FONTFAMILY.poppins_regular,
-    fontSize: FONTSIZE.size_12,
-    color: COLORS.secondaryLightGreyHex,
-  },
-  creditCardDateTitle: {
-    fontFamily: FONTFAMILY.poppins_semibold,
-    fontSize: FONTSIZE.size_14,
-    color: COLORS.primaryWhiteHex,
-  },
-  creditCardDateSubTitle: {
-    fontFamily: FONTFAMILY.poppins_regular,
-    fontSize: FONTSIZE.size_12,
-    color: COLORS.secondaryLightGreyHex,
-  },
-  dateContainer: {
-    alignItems: 'flex-end',
-  },
-});
-
 export default PaymentScreen;
 
+const styles = StyleSheet.create({
+  screen: {flex: 1, backgroundColor: COLORS.bg},
+  body: {paddingHorizontal: SPACING.lg},
+  card: {
+    height: 200,
+    borderRadius: RADIUS.xl,
+    padding: SPACING.lg,
+    justifyContent: 'space-between',
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  cardActive: {borderColor: COLORS.accent},
+  cardGlow: {
+    position: 'absolute',
+    width: 220,
+    height: 220,
+    borderRadius: 110,
+    right: -70,
+    top: -90,
+    backgroundColor: 'rgba(212,255,58,0.10)',
+  },
+  cardWatermark: {position: 'absolute', right: -30, bottom: -40},
+  cardTop: {flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'},
+  visa: {fontFamily: FONTFAMILY.black, fontSize: 22, color: COLORS.text, fontStyle: 'italic', letterSpacing: 1},
+  cardNumber: {fontFamily: FONTFAMILY.semibold, fontSize: FONTSIZE.xl, color: COLORS.text, letterSpacing: 2},
+  cardBottom: {flexDirection: 'row', justifyContent: 'space-between'},
+  cardLabel: {fontFamily: FONTFAMILY.regular, fontSize: FONTSIZE.xs, color: COLORS.textMuted},
+  cardValue: {fontFamily: FONTFAMILY.semibold, fontSize: FONTSIZE.sm, color: COLORS.text},
+  section: {...TYPE.subheading, marginTop: SPACING.xl, marginBottom: SPACING.sm},
+  methods: {gap: SPACING.xs},
+  method: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.md,
+    padding: SPACING.sm,
+    borderRadius: RADIUS.lg,
+    backgroundColor: COLORS.surface,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  methodActive: {borderColor: COLORS.accent, backgroundColor: COLORS.surfaceRaised},
+  methodIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: RADIUS.md,
+    backgroundColor: COLORS.surfaceRaised,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  methodLabel: {fontFamily: FONTFAMILY.semibold, fontSize: FONTSIZE.md, color: COLORS.text},
+  methodDetail: {fontFamily: FONTFAMILY.regular, fontSize: FONTSIZE.xs, color: COLORS.textMuted},
+  radio: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    borderWidth: 2,
+    borderColor: COLORS.textFaint,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: SPACING.xxs,
+  },
+  radioActive: {borderColor: COLORS.accent},
+  radioDot: {width: 10, height: 10, borderRadius: 5, backgroundColor: COLORS.accent},
+  summary: {
+    marginTop: SPACING.xl,
+    padding: SPACING.md,
+    borderRadius: RADIUS.lg,
+    backgroundColor: COLORS.surface,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    gap: SPACING.sm,
+  },
+  row: {flexDirection: 'row', justifyContent: 'space-between'},
+  rowLabel: {fontFamily: FONTFAMILY.regular, fontSize: FONTSIZE.sm, color: COLORS.textMuted},
+  rowValue: {fontFamily: FONTFAMILY.medium, fontSize: FONTSIZE.sm, color: COLORS.text},
+  secure: {flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: SPACING.md},
+  bottomBar: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.lg,
+    paddingHorizontal: SPACING.lg,
+    paddingTop: SPACING.sm,
+    backgroundColor: COLORS.bg,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.border,
+  },
+  total: {fontFamily: FONTFAMILY.bold, fontSize: FONTSIZE.xxl, color: COLORS.text},
+});

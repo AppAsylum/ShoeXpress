@@ -1,83 +1,47 @@
-import React, {useState} from 'react';
-import {StatusBar, StyleSheet, Text, View, ScrollView, TouchableOpacity} from 'react-native';
+import React from 'react';
+import {FlatList, StyleSheet} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import {useStore} from '../store/store';
 import {useBottomTabBarHeight} from '@react-navigation/bottom-tabs';
-import {
-  COLORS,
-  SPACING,
-  BORDERRADIUS,
-  FONTFAMILY,
-  FONTSIZE,
-} from '../Constants/theme';
-import HeaderBar from '../components/HeaderBar';
-import PopUpAnimation from '../components/PopUpAnimation';
+import {StatusBar} from 'expo-status-bar';
+import {useStore} from '../store/store';
+import ScreenHeader from '../components/ui/ScreenHeader';
+import EmptyState from '../components/ui/EmptyState';
 import OrderHistoryCard from '../components/OrderHistoryCard';
-import EmptyListAnimation from '../components/EmptyListAnimation';
+import {COLORS, SPACING} from '../Constants/theme';
 
 const OrderHistoryScreen = ({navigation}) => {
-  const OrderHistoryLists = useStore(state => state.OrderHistoryLists);
+  const orders = useStore(s => s.OrderHistoryLists);
   const tabBarHeight = useBottomTabBarHeight();
-  const [showAnimation, setShowAnimation] = useState(false);
-
-  const navigationHandler = ({index, id, type}) => {
-    navigation.push("Details", {
-      index,
-      id,
-      type
-    })
-  };
-
-
 
   return (
-    <SafeAreaView style={styles.screenContainer}>
-      <StatusBar backgroundColor={COLORS.primaryBlackHex} />
-
-      {showAnimation ? (
-        <PopUpAnimation
-          style={styles.lottieAnimation}
-          source={require('../lottie/successful.json')}
+    <SafeAreaView style={styles.screen} edges={['top']}>
+      <StatusBar style="light" />
+      <ScreenHeader
+        title="Orders"
+        subtitle={orders.length ? `${orders.length} ${orders.length === 1 ? 'order' : 'orders'} placed` : undefined}
+      />
+      {orders.length === 0 ? (
+        <EmptyState
+          icon="receipt-outline"
+          title="No orders yet"
+          subtitle="When you check out, your orders and receipts will appear here."
+          actionTitle="Browse shoes"
+          onAction={() => navigation.navigate('Home')}
         />
-      ) : null}
-
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollViewFlex}>
-        <View
-          style={[styles.scrollViewInnerView, {marginBottom: tabBarHeight}]}>
-          <View style={styles.itemContainer}>
-            <HeaderBar title="Order History" />
-
-            {OrderHistoryLists.length === 0 ? (
-              <EmptyListAnimation title={'No Order History'} />
-            ) : (
-              <View style={styles.listItemContainer}>
-                {OrderHistoryLists.map((data, index) => (
-                  <TouchableOpacity
-                    key={index.toString()}
-                    onPress={() => navigationHandler(data)}>
-                    <OrderHistoryCard
-                      navigationHandler={navigationHandler}
-                      CartList={data.CartList}
-                      CartListPrice={data.CartListPrice}
-                      OrderDate={data.orderDate}
-                    />
-                  </TouchableOpacity>
-                ))}
-              </View>
-            )}
-          </View>
-
-          {OrderHistoryLists.length > 0 ? (
-            <TouchableOpacity
-              style={styles.downloadButton}
-              onPress={() => {}}>
-              <Text style={styles.buttonText}>Download</Text>
-            </TouchableOpacity>
-          ) : null}
-        </View>
-      </ScrollView>
+      ) : (
+        <FlatList
+          data={orders}
+          keyExtractor={(o, i) => o.orderId || String(i)}
+          contentContainerStyle={{paddingHorizontal: SPACING.lg, paddingBottom: tabBarHeight + SPACING.xl, gap: SPACING.md}}
+          showsVerticalScrollIndicator={false}
+          renderItem={({item}) => (
+            <OrderHistoryCard
+              order={item}
+              onItemPress={shoe => navigation.push('Details', {index: shoe.index, id: shoe.id, type: shoe.type})}
+            />
+          )}
+        />
+      )}
     </SafeAreaView>
   );
 };
@@ -85,39 +49,5 @@ const OrderHistoryScreen = ({navigation}) => {
 export default OrderHistoryScreen;
 
 const styles = StyleSheet.create({
-  screenContainer: {
-    flex: 1,
-    backgroundColor: COLORS.primaryBlackHex,
-  },
-  lottieAnimation: {
-    height: 250,
-  },
-  scrollViewFlex: {
-    flexGrow: 1,
-  },
-  scrollViewInnerView: {
-    flex: 1,
-    justifyContent: 'space-between',
-  },
-  itemContainer: {
-    flex: 1,
-  },
-  listItemContainer: {
-    paddingHorizontal: SPACING.space_20,
-    gap: SPACING.space_30,
-  },
-  downloadButton: {
-    margin: SPACING.space_20,
-    backgroundColor: COLORS.primaryOrangeHex,
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: SPACING.space_36 * 2,
-    borderRadius: BORDERRADIUS.radius_20,
-  },
-  buttonText: {
-    fontFamily: FONTFAMILY.poppins_semibold,
-    fontSize: FONTSIZE.size_18,
-    color: COLORS.primaryWhiteHex,
-  },
+  screen: {flex: 1, backgroundColor: COLORS.bg},
 });
-

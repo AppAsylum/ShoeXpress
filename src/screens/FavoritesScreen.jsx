@@ -1,89 +1,65 @@
-import {StyleSheet, Text, View, StatusBar, ScrollView, TouchableOpacity} from 'react-native';
+import React from 'react';
+import {FlatList, StyleSheet, useWindowDimensions} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import React from 'react'
-import { useStore } from '../store/store'
-import {useBottomTabBarHeight} from '@react-navigation/bottom-tabs'
-import { COLORS,SPACING, BORDERRADIUS, FONTSIZE, FONTFAMILY} from '../Constants/theme';
-import HeaderBar from '../components/HeaderBar';
-import EmptyListAnimation from '../components/EmptyListAnimation';
-import FavoritesItemCard from '../components/FavoritesItemCard';
+import {useBottomTabBarHeight} from '@react-navigation/bottom-tabs';
+import {StatusBar} from 'expo-status-bar';
+import {useStore} from '../store/store';
+import ScreenHeader from '../components/ui/ScreenHeader';
+import EmptyState from '../components/ui/EmptyState';
+import ShoeCard from '../components/ShoeCard';
+import {addShoeToCart, toggleFavourite} from '../utils/cartActions';
+import {COLORS, SPACING} from '../Constants/theme';
+
+const GAP = SPACING.sm;
 
 const FavoritesScreen = ({navigation}) => {
-  const FavoritesLists = useStore((state) => state.FavoritesLists);
+  const favorites = useStore(s => s.FavoritesLists);
   const tabBarHeight = useBottomTabBarHeight();
-  const addToFavoriteList = useStore(state => state.addToFavoriteList);
-  const deleteFromFavoriteList = useStore(
-    state => state.deleteFromFavoriteList,
-  );
-  const ToggleFavorite = (favourite, type, id) => {
-    favourite ? deleteFromFavoriteList(type, id) : addToFavoriteList(type, id);
-  };
+  const {width} = useWindowDimensions();
+  const columns = width >= 700 ? 3 : 2;
+  const cardWidth = (width - SPACING.lg * 2 - GAP * (columns - 1)) / columns;
+
   return (
-    <SafeAreaView style={styles.screenContainer}>
-      <StatusBar backgroundColor={COLORS.primaryBlackHex} />
-      <ScrollView
-        showsVerticalScrollIndicator
-        contentContainerStyle={styles.scrollViewFlex}>
-        <View
-          style={[styles.scrollViewInnerView, {marginBottom: tabBarHeight}]}>
-          <View style={styles.itemContainer}>
-            <HeaderBar title="Favorites" />
-
-            {FavoritesLists.length == 0 ? (
-              <EmptyListAnimation title={'No Favorites'} />
-            ) : (
-              <View style={styles.listItemContainer}>
-                {FavoritesLists.map((data) => (
-                  <TouchableOpacity
-                  onPress={() => {
-                    navigation.push('Details', {
-                      index: data.index,
-                      id: data.id,
-                      type: data.type,
-                    });
-                  }}
-                    key={data.id}>
-                      <FavoritesItemCard 
-                      id={data.id}
-                      imagelink_portrait={data.imagelink_portrait}
-                      name={data.name}
-                      type={data.type}
-                      average_rating={data.average_rating}
-                      ratings_count={data.ratings_count}
-                      description={data.description}
-                      favourite={data.favourite}
-                      ToggleFavouriteItem={ToggleFavorite}
-                      />
-                    </TouchableOpacity>
-                ))}
-              </View>
-            )}
-          </View>
-        </View>
-      </ScrollView>
+    <SafeAreaView style={styles.screen} edges={['top']}>
+      <StatusBar style="light" />
+      <ScreenHeader
+        title="Favorites"
+        subtitle={favorites.length ? `${favorites.length} saved ${favorites.length === 1 ? 'pair' : 'pairs'}` : undefined}
+      />
+      {favorites.length === 0 ? (
+        <EmptyState
+          icon="heart-outline"
+          title="No favorites yet"
+          subtitle="Tap the heart on any shoe to save it here for later."
+          actionTitle="Explore shoes"
+          onAction={() => navigation.navigate('Home')}
+        />
+      ) : (
+        <FlatList
+          key={columns}
+          data={favorites}
+          numColumns={columns}
+          keyExtractor={s => s.id}
+          columnWrapperStyle={{gap: GAP}}
+          contentContainerStyle={{paddingHorizontal: SPACING.lg, paddingBottom: tabBarHeight + SPACING.xl, gap: GAP}}
+          showsVerticalScrollIndicator={false}
+          renderItem={({item}) => (
+            <ShoeCard
+              shoe={item}
+              width={cardWidth}
+              onPress={() => navigation.push('Details', {index: item.index, id: item.id, type: item.type})}
+              onAdd={() => addShoeToCart(item)}
+              onToggleFavourite={() => toggleFavourite(item)}
+            />
+          )}
+        />
+      )}
     </SafeAreaView>
-  )
-}
+  );
+};
 
-export default FavoritesScreen
+export default FavoritesScreen;
 
 const styles = StyleSheet.create({
-  screenContainer: {
-    flex: 1,
-    backgroundColor: COLORS.primaryBlackHex,
-  },
-  scrollViewFlex: {
-    flexGrow: 1,
-  },
-  scrollViewInnerView: {
-    flex: 1,
-    justifyContent: 'space-between',
-  },
-  itemContainer: {
-    flex: 1,
-  },
-  listItemContainer: {
-    paddingHorizontal: SPACING.space_20,
-    gap: SPACING.space_20,
-  },
-})
+  screen: {flex: 1, backgroundColor: COLORS.bg},
+});

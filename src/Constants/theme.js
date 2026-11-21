@@ -1,75 +1,91 @@
+// ShoeXpress design system — dark premium.
+// One accent (volt), near-black surfaces in three steps, white type with two muted tones.
 
+export const COLORS = {
+  // Surfaces
+  bg: '#0B0B0D',
+  surface: '#151518',
+  surfaceRaised: '#1E1E22',
+  border: '#2A2A30',
+
+  // Text
+  text: '#FFFFFF',
+  textMuted: '#A0A0A8',
+  textFaint: '#5E5E66',
+
+  // Accent
+  accent: '#D4FF3A',
+  accentSoft: 'rgba(212,255,58,0.12)',
+  onAccent: '#0B0B0D',
+
+  // Status
+  danger: '#FF5A5F',
+  dangerSoft: 'rgba(255,90,95,0.14)',
+  star: '#FFC94A',
+
+  // Overlays
+  scrim: 'rgba(11,11,13,0.55)',
+  scrimStrong: 'rgba(11,11,13,0.85)',
+  glass: 'rgba(21,21,24,0.72)',
+};
 
 export const SPACING = {
-    space_2: 2,
-    space_4: 4,
-    space_8: 8,
-    space_10: 10,
-    space_12: 12,
-    space_15: 15,
-    space_16: 16,
-    space_18: 18,
-    space_20: 20,
-    space_24: 24,
-    space_28: 28,
-    space_30: 30,
-    space_32: 32,
-    space_36: 36,
-  };
-  
-  
-  
-  export const COLORS = {
-    primaryRedHex: '#DC3535',
-    primaryOrangeHex: '#D17842',
-    primaryBlackHex: '#0C0F14',
-    primaryDarkGreyHex: '#141921',
-    secondaryDarkGreyHex: '#21262E',
-    primaryGreyHex: '#252A32',
-    secondaryGreyHex: '#252A32',
-    primaryLightGreyHex: '#52555A',
-    secondaryLightGreyHex: '#AEAEAE',
-    primaryWhiteHex: '#FFFFFF',
-    primaryBlackRGBA: 'rgba(12,15,20,0.5)',
-    secondaryBlackRGBA: 'rgba(0,0,0,0.7)',
-  };
-  
-  
-  export const FONTFAMILY= {
-    poppins_black: 'Poppins-Black',
-    poppins_bold: 'Poppins-Bold',
-    poppins_extrabold: 'Poppins-ExtraBold',
-    poppins_extralight: 'Poppins-ExtraLight',
-    poppins_light: 'Poppins-Light',
-    poppins_medium: 'Poppins-Medium',
-    poppins_regular: 'Poppins-Regular',
-    poppins_semibold: 'Poppins-SemiBold',
-    poppins_thin: 'Poppins-Thin',
-  };
-  
-  
-  export const FONTSIZE= {
-    size_8: 8,
-    size_10: 10,
-    size_12: 12,
-    size_14: 14,
-    size_16: 16,
-    size_18: 18,
-    size_20: 20,
-    size_24: 24,
-    size_28: 28,
-    size_30: 30,
-  };
-  
-  
-  
-  export const BORDERRADIUS= {
-    radius_4: 4,
-    radius_8: 8,
-    radius_10: 10,
-    radius_15: 15,
-    radius_20: 20,
-    radius_25: 25,
-  };
-  
-  
+  xxs: 4,
+  xs: 8,
+  sm: 12,
+  md: 16,
+  lg: 20,
+  xl: 24,
+  xxl: 32,
+  xxxl: 48,
+};
+
+export const RADIUS = {
+  sm: 10,
+  md: 14,
+  lg: 20,
+  xl: 28,
+  pill: 999,
+};
+
+export const FONTFAMILY = {
+  regular: 'Poppins-Regular',
+  medium: 'Poppins-Medium',
+  semibold: 'Poppins-SemiBold',
+  bold: 'Poppins-Bold',
+  extrabold: 'Poppins-ExtraBold',
+  black: 'Poppins-Black',
+};
+
+export const FONTSIZE = {
+  xs: 11,
+  sm: 13,
+  md: 15,
+  lg: 17,
+  xl: 20,
+  xxl: 26,
+  display: 34,
+};
+
+// Ready-made text styles so screens stay consistent.
+export const TYPE = {
+  display: {fontFamily: FONTFAMILY.bold, fontSize: FONTSIZE.display, lineHeight: 42, color: COLORS.text, letterSpacing: -0.5},
+  title: {fontFamily: FONTFAMILY.bold, fontSize: FONTSIZE.xxl, lineHeight: 34, color: COLORS.text, letterSpacing: -0.3},
+  heading: {fontFamily: FONTFAMILY.semibold, fontSize: FONTSIZE.xl, lineHeight: 28, color: COLORS.text},
+  subheading: {fontFamily: FONTFAMILY.semibold, fontSize: FONTSIZE.lg, lineHeight: 24, color: COLORS.text},
+  body: {fontFamily: FONTFAMILY.regular, fontSize: FONTSIZE.md, lineHeight: 23, color: COLORS.textMuted},
+  label: {fontFamily: FONTFAMILY.medium, fontSize: FONTSIZE.sm, lineHeight: 18, color: COLORS.textMuted},
+  caption: {fontFamily: FONTFAMILY.regular, fontSize: FONTSIZE.xs, lineHeight: 16, color: COLORS.textFaint},
+  price: {fontFamily: FONTFAMILY.bold, fontSize: FONTSIZE.lg, color: COLORS.text},
+  button: {fontFamily: FONTFAMILY.semibold, fontSize: FONTSIZE.md, letterSpacing: 0.2},
+};
+
+export const SHADOW = {
+  card: {
+    shadowColor: '#000',
+    shadowOpacity: 0.35,
+    shadowRadius: 18,
+    shadowOffset: {width: 0, height: 10},
+    elevation: 8,
+  },
+};

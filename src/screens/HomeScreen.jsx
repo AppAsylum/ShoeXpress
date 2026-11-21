@@ -1,315 +1,277 @@
-import {StyleSheet, Text, View, StatusBar, ScrollView, TouchableOpacity, Image, TextInput, Dimensions, FlatList} from 'react-native';
+import React, {useCallback, useMemo, useRef, useState} from 'react';
+import {FlatList, Pressable, ScrollView, StyleSheet, Text, TextInput, View, useWindowDimensions} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import React, { useRef, useState } from 'react';
-import { useStore } from '../store/store';
-import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
-import { BORDERRADIUS, COLORS, FONTFAMILY, FONTSIZE, SPACING } from '../Constants/theme';
-import HeaderBar from '../components/HeaderBar';
+import {useBottomTabBarHeight} from '@react-navigation/bottom-tabs';
+import {LinearGradient} from 'expo-linear-gradient';
+import {Ionicons} from '@expo/vector-icons';
+import {StatusBar} from 'expo-status-bar';
+import {useStore} from '../store/store';
+import {BRANDS} from '../Constants/ShoeData';
 import ShoeCard from '../components/ShoeCard';
+import ShoeImage from '../components/ui/ShoeImage';
+import PressableScale from '../components/ui/PressableScale';
+import {IconButton} from '../components/ui/Button';
+import {Wordmark} from '../components/ui/Logo';
+import EmptyState from '../components/ui/EmptyState';
+import {addShoeToCart, toggleFavourite} from '../utils/cartActions';
+import {COLORS, FONTFAMILY, FONTSIZE, RADIUS, SPACING, TYPE} from '../Constants/theme';
 
-
-
-const seacrhIcon = require('../assets/icons/search.png');
-const closeIcon = require('../assets/icons/close.png');
-
-
-const getCategoriesFromData = (data) => {
-  let temp = {};
-  for (let i = 0; i < data.length; i++) {
-    if(temp[data[i].name] == undefined) {
-      temp[data[i].name] = 1;
-    } else {
-      temp[data[i].name]++;
-    }
-  }
-  let catergories = Object.keys(temp);
-catergories.unshift('All');
-return catergories;
-};
-const getShoeList = (category, data) => {
-  if(category == "All") {
-    return data;
-  } else {
-    let shoeList = data.filter((item) => item.name == category);
-    return shoeList
-  }
-};
-
-
+const GUTTER = SPACING.lg;
+const GAP = SPACING.sm;
+const FEATURED_ID = '1'; // Air Jordan 1
 
 const HomeScreen = ({navigation}) => {
-const ShoeList = useStore((state) => state.ShoeList);
-const addToCart = useStore(state => state.addToCart);
-  const calculateCartPrice = useStore(state => state.calculateCartPrice);
-const [categories, setCategories] = useState(
-  getCategoriesFromData(ShoeList));
-const [searchText, setSearchText] = useState('');
-const [categoryIndex, setCategoryIndex] = useState({
-  index: 1,
-  category: categories[1],
-});
-
-const windowWidth = Dimensions.get('window').width;
-
-const calculateNumColumns = () => {
-  const isPortrait = Dimensions.get('window').height > Dimensions.get('window').width;
-
-  if (isPortrait) {
-    return windowWidth < 700 ? 2 : 3;
-  } else {
-    return windowWidth < 1100 ? 2 : 3; // Adjust the width threshold as needed
-  }
-};
-
-  const [sortedShoe, setSortedShoe] = useState(
-    getShoeList(categoryIndex.category, ShoeList)
-    );
-  
-   
-    const listRef = useRef()
+  const ShoeList = useStore(s => s.ShoeList);
+  const cartCount = useStore(s => s.CartList.reduce((n, i) => n + i.prices.reduce((m, p) => m + p.quantity, 0), 0));
   const tabBarHeight = useBottomTabBarHeight();
+  const {width} = useWindowDimensions();
+  const columns = width >= 700 ? 3 : 2;
+  const cardWidth = (width - GUTTER * 2 - GAP * (columns - 1)) / columns;
 
-  const searchShoe = (search) => {
-    if(search != '') {
-      listRef?.current?.scrollToOffset({
-        animated: true,
-        offset:0,
-      });
-      setCategoryIndex({index: 0, category: categories[0]});
-      setSortedShoe([
-        ...ShoeList.filter((item) => 
-      item.name.toLowerCase().includes(search.toLowerCase())
-      )]
-      );
-    }
-  }
+  const [query, setQuery] = useState('');
+  const [brand, setBrand] = useState('All');
+  const listRef = useRef(null);
 
-  const resetSearchShoe = () => {
-    listRef?.current?.scrollToOffset({
-      animated: true,
-      offset:0,
-    });
-    setCategoryIndex({index: 0, category: categories[0]});
-    setSortedShoe(
-      [...ShoeList]
+  const results = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return ShoeList.filter(
+      s =>
+        (brand === 'All' || s.name === brand) &&
+        (!q || s.model.toLowerCase().includes(q) || s.name.toLowerCase().includes(q)),
     );
-    setSearchText('')
-  }
+  }, [ShoeList, brand, query]);
 
-  const ShoeCardAddToCart =({
-    id,
-    index,
-    name,
-    imagelink_square,
-    type,
-    prices
-  }) => {
-    addToCart({
-      id,
-      index,
-      name,
-      imagelink_square,
-      type,
-      prices
-    });
-    calculateCartPrice();
-    
-  }
+  const featured = ShoeList.find(s => s.id === FEATURED_ID);
+  const showFeatured = brand === 'All' && !query.trim() && featured;
+
+  const openDetails = useCallback(
+    shoe => navigation.push('Details', {index: shoe.index, id: shoe.id, type: shoe.type}),
+    [navigation],
+  );
+
+  const selectBrand = b => {
+    setBrand(b);
+    listRef.current?.scrollToOffset({offset: 0, animated: true});
+  };
+
+  const header = (
+    <View>
+      <View style={styles.topBar}>
+        <Wordmark size={20} />
+        <View style={styles.topActions}>
+          <IconButton icon="information-circle-outline" onPress={() => navigation.navigate('Credits')} label="About and photo credits" />
+          <View>
+            <IconButton icon="bag-handle-outline" onPress={() => navigation.navigate('Cart')} label="Open cart" />
+            {cartCount > 0 && (
+              <View style={styles.badge} pointerEvents="none">
+                <Text style={styles.badgeText}>{cartCount > 9 ? '9+' : cartCount}</Text>
+              </View>
+            )}
+          </View>
+        </View>
+      </View>
+
+      <Text style={[TYPE.display, styles.headline]}>
+        Find your{'\n'}<Text style={{color: COLORS.accent}}>perfect pair</Text>
+      </Text>
+
+      <View style={styles.search}>
+        <Ionicons name="search" size={18} color={query ? COLORS.accent : COLORS.textFaint} />
+        <TextInput
+          value={query}
+          onChangeText={setQuery}
+          placeholder="Search shoes or brands"
+          placeholderTextColor={COLORS.textFaint}
+          selectionColor={COLORS.accent}
+          style={styles.searchInput}
+          returnKeyType="search"
+          autoCorrect={false}
+        />
+        {query ? (
+          <Pressable onPress={() => setQuery('')} hitSlop={10} accessibilityLabel="Clear search">
+            <Ionicons name="close-circle" size={18} color={COLORS.textMuted} />
+          </Pressable>
+        ) : null}
+      </View>
+
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.chips}
+        style={styles.chipsScroll}>
+        {BRANDS.map(b => {
+          const active = b === brand;
+          return (
+            <PressableScale
+              key={b}
+              onPress={() => selectBrand(b)}
+              scaleTo={0.94}
+              style={[styles.chip, active && styles.chipActive]}
+              accessibilityState={{selected: active}}>
+              <Text style={[styles.chipText, active && styles.chipTextActive]}>{b}</Text>
+            </PressableScale>
+          );
+        })}
+      </ScrollView>
+
+      {showFeatured ? (
+        <PressableScale onPress={() => openDetails(featured)} scaleTo={0.98} style={styles.featured}>
+          <ShoeImage source={featured.imagelink_square} style={StyleSheet.absoluteFill} />
+          <LinearGradient
+            colors={['rgba(11,11,13,0)', 'rgba(11,11,13,0.9)']}
+            start={{x: 0.3, y: 0}}
+            end={{x: 0.3, y: 1}}
+            style={StyleSheet.absoluteFill}
+          />
+          <View style={styles.featuredTag}>
+            <Text style={styles.featuredTagText}>FEATURED DROP</Text>
+          </View>
+          <View style={styles.featuredInfo}>
+            <View style={{flex: 1}}>
+              <Text style={styles.featuredBrand}>{featured.name}</Text>
+              <Text style={styles.featuredModel}>{featured.model}</Text>
+            </View>
+            <View style={styles.featuredCta}>
+              <Text style={styles.featuredPrice}>${featured.prices[0].price}</Text>
+              <Ionicons name="arrow-forward" size={16} color={COLORS.onAccent} />
+            </View>
+          </View>
+        </PressableScale>
+      ) : null}
+
+      <View style={styles.sectionRow}>
+        <Text style={TYPE.subheading}>{query.trim() ? 'Results' : brand === 'All' ? 'All shoes' : brand}</Text>
+        <Text style={TYPE.label}>{results.length} {results.length === 1 ? 'item' : 'items'}</Text>
+      </View>
+    </View>
+  );
 
   return (
-
-      <SafeAreaView style={styles.screenContainer} edges={['top']}>
-        <StatusBar />
-          {/* Shoe Flatlist: the screen's only vertical scroller; header content lives in ListHeaderComponent */}
-          <FlatList
-          ref={listRef}
-          keyboardShouldPersistTaps='handled'
-          keyboardDismissMode='on-drag'
-          ListHeaderComponent={
-          <View>
-          {/* App Header */}
-          <HeaderBar  title='ShoeXpress'/>
-          <Text style={styles.screenTitle}>Find the best{'\n'}Shoe for you</Text>
-
-          {/* Search Input */}
-
-          <View style={styles.inputContainerComponent}>
-            <TouchableOpacity onPress={() => {
-              searchShoe(searchText);
-            }}>
-              <Image 
-              source={seacrhIcon}
-              style={{
-                height: FONTSIZE.size_18,
-                width: FONTSIZE.size_18,
-                marginHorizontal: SPACING.space_20
-              }}
-              tintColor={searchText.length > 0? COLORS.primaryOrangeHex : COLORS.primaryLightGreyHex}
-              />
-            </TouchableOpacity>
-            <TextInput placeholder='Find Your Shoe...'
-            value={searchText}
-            onChangeText={text =>{
-               setSearchText(text)
-               searchShoe(text);
-              }}
-            placeholderTextColor={COLORS.primaryLightGreyHex}
-            style={styles.textInputContainer}
-            />
-            {searchText.length > 0 ?
-            (<TouchableOpacity onPress={() => {
-              resetSearchShoe()
-            }}>
-              <Image 
-              source={closeIcon}
-              style={{
-                height: FONTSIZE.size_14,
-                width: FONTSIZE.size_14,
-                marginHorizontal: SPACING.space_20,
-              }}
-              resizeMode='cover'
-              tintColor={COLORS.primaryLightGreyHex}
-              />
-            </TouchableOpacity> )
-             :( <></>)} 
-          </View>
-
-          {/* Category Scroller */}
-          <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.categoryScrollViewStyle}
-          >
-            {categories.map((data, index) => (
-              <View
-              key={data}
-              style={styles.categoryScrollViewContainer}
-              >
-                <TouchableOpacity 
-                style={styles.categoryScrollViewItem} 
-                onPress={() => {
-                  listRef?.current?.scrollToOffset({
-                    animated: true,
-                    offset:0,
-                  })
-                  setCategoryIndex({index: index, category: categories[index]});
-                  setSortedShoe([
-                    ...getShoeList(categories[index], ShoeList)])
-                }}>
-                  <Text style={[
-                    styles.categoryText, 
-                    categoryIndex.index == index
-                     ? {color: COLORS.primaryOrangeHex,} : {}]}>{data}</Text>
-                  {categoryIndex.index == index ? <View style={styles.activeCategory}/>: <></>}
-                </TouchableOpacity>
-              </View>
-            ))}
-          </ScrollView>
-          </View>
-          }
-          ListEmptyComponent={
-          <View style={styles.emptyListContainer}>
-            <Text style={styles.categoryText}>Shoe Not Found</Text>
-          </View>}
-          numColumns={calculateNumColumns()}
-          showsVerticalScrollIndicator={false}
-          data={sortedShoe}
-          columnWrapperStyle={styles.columnWrapper}
-          contentContainerStyle={{paddingBottom: tabBarHeight}}
-          keyExtractor={item => item.id} 
-          renderItem={({item}) => {
-          return (
-          <TouchableOpacity
-          onPress={() => {
-            navigation.push('Details', {
-              index: item.index, 
-              id: item.id, 
-              type: item.type
-            });
-          }}
-          style={styles.cardContainer}>
-          <ShoeCard 
-          id={item.id}
-          name={item.name}
-          index={item.index}
-          type={item.type}
-          imagelink_square={item.imagelink_square}
-          average_rating={item.average_rating}
-          price={item.prices[2]}
-          buttonPressHandler={ShoeCardAddToCart}
+    <SafeAreaView style={styles.screen} edges={['top']}>
+      <StatusBar style="light" />
+      <FlatList
+        ref={listRef}
+        key={columns}
+        data={results}
+        numColumns={columns}
+        keyExtractor={s => s.id}
+        ListHeaderComponent={header}
+        ListEmptyComponent={
+          <EmptyState
+            icon="search-outline"
+            title="No shoes found"
+            subtitle={`Nothing matches “${query.trim()}”. Try another name or brand.`}
+            actionTitle="Clear search"
+            onAction={() => {
+              setQuery('');
+              setBrand('All');
+            }}
+          />
+        }
+        columnWrapperStyle={{gap: GAP}}
+        contentContainerStyle={{paddingHorizontal: GUTTER, paddingBottom: tabBarHeight + SPACING.xl, gap: GAP}}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
+        showsVerticalScrollIndicator={false}
+        renderItem={({item}) => (
+          <ShoeCard
+            shoe={item}
+            width={cardWidth}
+            onPress={() => openDetails(item)}
+            onAdd={() => addShoeToCart(item)}
+            onToggleFavourite={() => toggleFavourite(item)}
+          />
+        )}
       />
-    </TouchableOpacity>)
-  }}
-/>
-      </SafeAreaView>
+    </SafeAreaView>
   );
 };
 
 export default HomeScreen;
 
 const styles = StyleSheet.create({
-  screenContainer: {
-    flex: 1,
-    backgroundColor: COLORS.primaryBlackHex,
-  },
-  screenTitle: {
-    fontSize: FONTSIZE.size_28,
-    fontFamily: FONTFAMILY.poppins_semibold,
-    color: COLORS.primaryWhiteHex,
-    paddingLeft: SPACING.space_30,
-  },
-  inputContainerComponent: {
-    flexDirection: 'row',
-    margin: SPACING.space_30,
-    borderRadius: BORDERRADIUS.radius_20,
-    backgroundColor: COLORS.primaryDarkGreyHex,
-    alignItems: 'center',
-  },
-  textInputContainer: {
-    flex: 1,
-    height: SPACING.space_20 * 3,
-    fontFamily: FONTFAMILY.poppins_medium,
-    fontSize: FONTSIZE.size_14,
-    color: COLORS.primaryWhiteHex,
-  },
-  itemContainer: {
-    flexDirection: 'row',
-    paddingVertical: 15
-  },
-  categoryScrollViewStyle: {
-    paddingHorizontal: SPACING.space_20,
-    marginBottom: SPACING.space_20
-  },
-  categoryScrollViewContainer: {
-    paddingHorizontal: SPACING.space_15
-  },
-  categoryScrollViewItem: {
-    alignItems: 'center'
-  },
-  categoryText: {
-    fontFamily: FONTFAMILY.poppins_semibold,
-    fontSize: FONTSIZE.size_16,
-    color: COLORS.primaryLightGreyHex,
-    marginBottom: SPACING.space_4
-  },
-  activeCategory: {
-    height: SPACING.space_10,
-    width: SPACING.space_10,
-    borderRadius: BORDERRADIUS.radius_10,
-    backgroundColor: COLORS.primaryOrangeHex,
-  },
-  columnWrapper: {
-    justifyContent: 'center',
-  },
-  emptyListContainer: {
-    width:Dimensions.get('window').width - SPACING.space_30,
+  screen: {flex: 1, backgroundColor: COLORS.bg},
+  topBar: {flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: SPACING.xs},
+  topActions: {flexDirection: 'row', gap: SPACING.xs},
+  badge: {
+    position: 'absolute',
+    top: -2,
+    right: -2,
+    minWidth: 18,
+    height: 18,
+    borderRadius: 9,
+    paddingHorizontal: 4,
+    backgroundColor: COLORS.accent,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: SPACING.space_36 * 3.6
- 
+    borderWidth: 2,
+    borderColor: COLORS.bg,
   },
-  cardContainer: {
-  margin: 10 
+  badgeText: {fontFamily: FONTFAMILY.bold, fontSize: 10, color: COLORS.onAccent},
+  headline: {marginTop: SPACING.xl},
+  search: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.sm,
+    height: 52,
+    paddingHorizontal: SPACING.md,
+    marginTop: SPACING.lg,
+    borderRadius: RADIUS.pill,
+    backgroundColor: COLORS.surface,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  searchInput: {flex: 1, height: '100%', color: COLORS.text, fontFamily: FONTFAMILY.regular, fontSize: FONTSIZE.md},
+  chipsScroll: {marginHorizontal: -GUTTER, marginTop: SPACING.md},
+  chips: {paddingHorizontal: GUTTER, gap: SPACING.xs},
+  chip: {
+    paddingHorizontal: SPACING.md,
+    height: 38,
+    justifyContent: 'center',
+    borderRadius: RADIUS.pill,
+    backgroundColor: COLORS.surface,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  chipActive: {backgroundColor: COLORS.accent, borderColor: COLORS.accent},
+  chipText: {fontFamily: FONTFAMILY.medium, fontSize: FONTSIZE.sm, color: COLORS.textMuted},
+  chipTextActive: {color: COLORS.onAccent, fontFamily: FONTFAMILY.semibold},
+  featured: {
+    height: 210,
+    marginTop: SPACING.lg,
+    borderRadius: RADIUS.xl,
+    overflow: 'hidden',
+    justifyContent: 'space-between',
+    padding: SPACING.md,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  featuredTag: {
+    alignSelf: 'flex-start',
+    backgroundColor: COLORS.scrimStrong,
+    borderRadius: RADIUS.pill,
+    paddingHorizontal: SPACING.sm,
+    paddingVertical: 4,
+  },
+  featuredTagText: {fontFamily: FONTFAMILY.bold, fontSize: 10, color: COLORS.accent, letterSpacing: 1.2},
+  featuredInfo: {flexDirection: 'row', alignItems: 'flex-end', gap: SPACING.sm},
+  featuredBrand: {fontFamily: FONTFAMILY.medium, fontSize: FONTSIZE.xs, color: COLORS.textMuted, textTransform: 'uppercase', letterSpacing: 0.8},
+  featuredModel: {fontFamily: FONTFAMILY.bold, fontSize: FONTSIZE.xl, color: COLORS.text},
+  featuredCta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: COLORS.accent,
+    borderRadius: RADIUS.pill,
+    paddingHorizontal: SPACING.md,
+    height: 40,
+  },
+  featuredPrice: {fontFamily: FONTFAMILY.bold, fontSize: FONTSIZE.md, color: COLORS.onAccent},
+  sectionRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    justifyContent: 'space-between',
+    marginTop: SPACING.xl,
+    marginBottom: SPACING.xxs,
   },
 });
-

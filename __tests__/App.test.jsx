@@ -10,7 +10,10 @@ jest.mock('react-native-safe-area-context', () =>
   require('react-native-safe-area-context/jest/mock').default,
 );
 
-it('renders the sign-up screen on launch', async () => {
+it('shows the welcome screen on first launch', async () => {
   await render(<App />);
-  expect(await screen.findByText('First name')).toBeTruthy();
+  expect(await screen.findByText('Next')).toBeTruthy();
+  expect(screen.getByText(/your best pair/)).toBeTruthy();
+  // Branded launch screen is layered on top while it animates.
+  expect(screen.getByText('Step into something new')).toBeTruthy();
 });
