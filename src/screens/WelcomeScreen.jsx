@@ -38,7 +38,10 @@ const WelcomeScreen = ({navigation}) => {
   const insets = useSafeAreaInsets();
   const completeOnboarding = useStore(s => s.completeOnboarding);
   const listRef = useRef(null);
+  // scrollX drives the photo parallax on the native thread; dotsX mirrors it on
+  // the JS side because width (used by the pager dots) can't animate natively.
   const scrollX = useState(() => new Animated.Value(0))[0];
+  const dotsX = useState(() => new Animated.Value(0))[0];
   const [index, setIndex] = useState(0);
   const isLast = index === SLIDES.length - 1;
 
@@ -63,7 +66,11 @@ const WelcomeScreen = ({navigation}) => {
         pagingEnabled
         bounces={false}
         showsHorizontalScrollIndicator={false}
-        onScroll={Animated.event([{nativeEvent: {contentOffset: {x: scrollX}}}], {useNativeDriver: true})}
+        scrollEventThrottle={16}
+        onScroll={Animated.event([{nativeEvent: {contentOffset: {x: scrollX}}}], {
+          useNativeDriver: true,
+          listener: e => dotsX.setValue(e.nativeEvent.contentOffset.x),
+        })}
         onMomentumScrollEnd={e => setIndex(Math.round(e.nativeEvent.contentOffset.x / width))}
         getItemLayout={(_, i) => ({length: width, offset: width * i, index: i})}
         renderItem={({item, index: i}) => {
@@ -104,12 +111,12 @@ const WelcomeScreen = ({navigation}) => {
       <View style={[styles.bottom, {paddingBottom: insets.bottom + SPACING.lg}]}>
         <View style={styles.dots}>
           {SLIDES.map((s, i) => {
-            const w = scrollX.interpolate({
+            const w = dotsX.interpolate({
               inputRange: [(i - 1) * width, i * width, (i + 1) * width],
               outputRange: [8, 28, 8],
               extrapolate: 'clamp',
             });
-            const opacity = scrollX.interpolate({
+            const opacity = dotsX.interpolate({
               inputRange: [(i - 1) * width, i * width, (i + 1) * width],
               outputRange: [0.35, 1, 0.35],
               extrapolate: 'clamp',
