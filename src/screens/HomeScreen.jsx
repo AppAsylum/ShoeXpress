@@ -1,4 +1,4 @@
-import {StyleSheet, Text, View, StatusBar, ScrollView, TouchableOpacity, Image, TextInput, Dimensions, FlatList, KeyboardAvoidingView, Platform} from 'react-native';
+import {StyleSheet, Text, View, StatusBar, ScrollView, TouchableOpacity, Image, TextInput, Dimensions, FlatList} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import React, { useRef, useState } from 'react';
 import { useStore } from '../store/store';
@@ -118,15 +118,15 @@ const calculateNumColumns = () => {
 
   return (
 
-      <SafeAreaView style={styles.screenContainer}>
+      <SafeAreaView style={styles.screenContainer} edges={['top']}>
         <StatusBar />
-        <ScrollView showsVerticalScrollIndicator={false} 
-        contentContainerStyle={styles.scrollViewFlex}>
-           <KeyboardAvoidingView 
-           style={styles.container}
-           behavior="padding"
-           keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : -500} // Adjust the offset as needed
-         >
+          {/* Shoe Flatlist: the screen's only vertical scroller; header content lives in ListHeaderComponent */}
+          <FlatList
+          ref={listRef}
+          keyboardShouldPersistTaps='handled'
+          keyboardDismissMode='on-drag'
+          ListHeaderComponent={
+          <View>
           {/* App Header */}
           <HeaderBar  title='ShoeXpress'/>
           <Text style={styles.screenTitle}>Find the best{'\n'}Shoe for you</Text>
@@ -182,7 +182,7 @@ const calculateNumColumns = () => {
           >
             {categories.map((data, index) => (
               <View
-              key={index.toString.toString()}
+              key={data}
               style={styles.categoryScrollViewContainer}
               >
                 <TouchableOpacity 
@@ -205,13 +205,8 @@ const calculateNumColumns = () => {
               </View>
             ))}
           </ScrollView>
-
-          {/* Shoe Flatlist */}
-          <FlatList 
-          ref={listRef}
-          style={{
-            alignSelf: 'center'
-          }}
+          </View>
+          }
           ListEmptyComponent={
           <View style={styles.emptyListContainer}>
             <Text style={styles.categoryText}>Shoe Not Found</Text>
@@ -219,7 +214,8 @@ const calculateNumColumns = () => {
           numColumns={calculateNumColumns()}
           showsVerticalScrollIndicator={false}
           data={sortedShoe}
-          contentContainerStyle={[styles.flatListContainer, {marginBottom: tabBarHeight}]}
+          columnWrapperStyle={styles.columnWrapper}
+          contentContainerStyle={{paddingBottom: tabBarHeight}}
           keyExtractor={item => item.id} 
           renderItem={({item}) => {
           return (
@@ -245,8 +241,6 @@ const calculateNumColumns = () => {
     </TouchableOpacity>)
   }}
 />
-</KeyboardAvoidingView>
-        </ScrollView>
       </SafeAreaView>
   );
 };
@@ -257,12 +251,6 @@ const styles = StyleSheet.create({
   screenContainer: {
     flex: 1,
     backgroundColor: COLORS.primaryBlackHex,
-  },
-  scrollViewFlex: {
-    flexGrow: 1,
-  },
-  container: {
-    flexGrow: 1,
   },
   screenTitle: {
     fontSize: FONTSIZE.size_28,
@@ -310,8 +298,8 @@ const styles = StyleSheet.create({
     borderRadius: BORDERRADIUS.radius_10,
     backgroundColor: COLORS.primaryOrangeHex,
   },
-  flatListContainer: {
-    alignItems: 'center',
+  columnWrapper: {
+    justifyContent: 'center',
   },
   emptyListContainer: {
     width:Dimensions.get('window').width - SPACING.space_30,

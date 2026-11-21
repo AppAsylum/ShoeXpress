@@ -1,26 +1,18 @@
 import React from 'react';
-import {StyleSheet, View, Text} from 'react-native';
-import {useVideoPlayer, VideoView} from 'expo-video';
+import {StyleSheet, View, Text, Image} from 'react-native';
 import {COLORS, FONTFAMILY, FONTSIZE, SPACING} from '../Constants/theme';
 
-const VIDEO_URI =
-  'https://player.vimeo.com/external/576784608.sd.mp4?s=a8ba529a3311735f4203f4666c24cd40956bea84&profile_id=165&oauth2_token_id=57447761';
+const shoeIcon = require('../assets/icons/shoes.png');
 
 const EmptyListAnimation = ({title}) => {
-  const player = useVideoPlayer(VIDEO_URI, p => {
-    p.loop = true;
-    p.muted = true;
-    p.play();
-  });
-
   return (
     <View style={styles.EmptyCartContainer}>
-      <View style={styles.animationContainer}>
-        <VideoView
-          player={player}
-          style={styles.animatedVideo}
-          contentFit="cover"
-          nativeControls={false}
+      <View style={styles.iconContainer}>
+        <Image
+          source={shoeIcon}
+          style={styles.icon}
+          tintColor={COLORS.primaryOrangeHex}
+          resizeMode="contain"
         />
       </View>
       <Text style={styles.animatedText}>{title}</Text>
@@ -33,21 +25,18 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
   },
-  animationContainer: {
+  iconContainer: {
     height: 150,
     width: 150,
     justifyContent: 'center',
     alignItems: 'center',
     alignSelf: 'center',
-    overflow: 'hidden',
     borderRadius: 20,
+    backgroundColor: COLORS.primaryDarkGreyHex,
   },
-  animatedVideo: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    left: 0,
-    bottom: 0,
+  icon: {
+    height: 72,
+    width: 72,
   },
   animatedText: {
     marginTop: SPACING.space_20,

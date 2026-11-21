@@ -192,7 +192,7 @@ export const useStore = create(
     }),
     {
       name: 'shoe-app',
-      getStorage: createJSONStorage(() => AsyncStorage),
+      storage: createJSONStorage(() => AsyncStorage),
     },
   ),
 );
