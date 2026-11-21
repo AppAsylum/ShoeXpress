@@ -17,7 +17,7 @@ import {
   FONTFAMILY,
   FONTSIZE,
 } from '../Constants/theme';
-import HeaderBar from '../components/ HeaderBar ';
+import HeaderBar from '../components/HeaderBar';
 import PopUpAnimation from '../components/PopUpAnimation';
 import OrderHistoryCard from '../components/OrderHistoryCard';
 import EmptyListAnimation from '../components/EmptyListAnimation';

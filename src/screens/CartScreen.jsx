@@ -11,7 +11,7 @@ import {
   import {useStore} from '../store/store';
   import {useBottomTabBarHeight} from '@react-navigation/bottom-tabs';
   import {COLORS, SPACING} from '../Constants/theme';
-  import HeaderBar from '../components/ HeaderBar ';
+  import HeaderBar from '../components/HeaderBar';
   import EmptyListAnimation from '../components/EmptyListAnimation';
   import PaymentFooter from '../components/PaymentFooter';
   import CartItem from '../components/CartItem';

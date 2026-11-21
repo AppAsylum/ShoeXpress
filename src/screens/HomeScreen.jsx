@@ -3,7 +3,7 @@ import React, { useRef, useState } from 'react';
 import { useStore } from '../store/store';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { BORDERRADIUS, COLORS, FONTFAMILY, FONTSIZE, SPACING } from '../Constants/theme';
-import HeaderBar from '../components/ HeaderBar ';
+import HeaderBar from '../components/HeaderBar';
 import ShoeCard from '../components/ShoeCard';
 import Toast from 'react-native-toast-message';
 

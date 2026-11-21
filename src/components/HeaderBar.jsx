@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 import React from 'react';
 import { COLORS, FONTFAMILY, FONTSIZE, SPACING } from '../Constants/theme';
-import GradientBGIcon from './GradientBGIcon ';
+import GradientBGIcon from './GradientBGIcon';
 import ProfilePic from './ProfilePic';
 
 

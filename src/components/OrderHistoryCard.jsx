@@ -1,7 +1,7 @@
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import React from 'react';
 import {COLORS, FONTFAMILY, FONTSIZE, SPACING} from '../Constants/theme';
-import OrderItemCard from './OrderItemCard ';
+import OrderItemCard from './OrderItemCard';
 
 const OrderHistoryCard = ({
   navigationHandler,

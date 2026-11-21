@@ -7,7 +7,7 @@ import {
     Image,
   } from 'react-native';
   import React, {useState} from 'react';
-import GradientBGIcon from './GradientBGIcon ';
+import GradientBGIcon from './GradientBGIcon';
   import {BORDERRADIUS, COLORS, FONTFAMILY, FONTSIZE, SPACING} from '../Constants/theme'
   
   const backIcon = require('../assets/icons/left.png');

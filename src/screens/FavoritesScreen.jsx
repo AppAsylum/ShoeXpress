@@ -3,7 +3,7 @@ import React from 'react'
 import { useStore } from '../store/store'
 import {useBottomTabBarHeight} from '@react-navigation/bottom-tabs'
 import { COLORS,SPACING, BORDERRADIUS, FONTSIZE, FONTFAMILY} from '../Constants/theme';
-import HeaderBar from '../components/ HeaderBar ';
+import HeaderBar from '../components/HeaderBar';
 import EmptyListAnimation from '../components/EmptyListAnimation';
 import FavoritesItemCard from '../components/FavoritesItemCard';
 

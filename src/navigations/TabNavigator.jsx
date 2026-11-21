@@ -1,10 +1,10 @@
 import React from 'react';
 import { StyleSheet, Image, View } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import HomeScreen from '../screens/HomeScreen ';
+import HomeScreen from '../screens/HomeScreen';
 import FavoritesScreen from '../screens/FavoritesScreen';
 import CartScreen from '../screens/CartScreen';
-import OrderHistoryScreen from '../screens/OrderHistoryScreen ';
+import OrderHistoryScreen from '../screens/OrderHistoryScreen';
 import { COLORS } from '../Constants/theme';
 
 
