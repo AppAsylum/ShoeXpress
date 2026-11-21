@@ -1,4 +1,30 @@
 {
-  "name": "ShoeXpress",
-  "displayName": "ShoeXpress"
+  "expo": {
+    "name": "ShoeXpress",
+    "slug": "shoexpress",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.appasylum.shoexpress"
+    },
+    "android": {
+      "package": "com.appasylum.shoexpress"
+    },
+    "plugins": [
+      "expo-status-bar",
+      "expo-font",
+      "expo-video",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./src/assets/app_images/shoeLogo.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#0C0F14"
+        }
+      ]
+    ]
+  }
 }

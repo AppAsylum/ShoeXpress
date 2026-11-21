@@ -1,16 +1,6 @@
 import React, {useState} from 'react';
-import {
-  StyleSheet,
-  Text,
-  View,
-  TextInput,
-  TouchableOpacity,
-  ScrollView,
-  KeyboardAvoidingView,
-  Dimensions,
-  Image,
-  SafeAreaView
-} from 'react-native';
+import {StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, KeyboardAvoidingView, Dimensions, Image} from 'react-native';
+import {SafeAreaView} from 'react-native-safe-area-context';
 import AuthHeader from '../components/AuthHeader';
 import { COLORS, FONTSIZE, SPACING } from '../Constants/theme';
 

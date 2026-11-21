@@ -1,13 +1,5 @@
-import { StyleSheet,
-    Text,
-    View,
-    TouchableOpacity,
-    TextInput,
-    ScrollView,
-    KeyboardAvoidingView,
-    SafeAreaView,
-    Dimensions,
-    Image, } from 'react-native'
+import {StyleSheet, Text, View, TouchableOpacity, TextInput, ScrollView, KeyboardAvoidingView, Dimensions, Image, Platform} from 'react-native';
+import {SafeAreaView} from 'react-native-safe-area-context';
     import React, {useState} from 'react';
   import { BORDERRADIUS, COLORS } from '../Constants/theme';
   

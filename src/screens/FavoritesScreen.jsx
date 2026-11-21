@@ -1,4 +1,5 @@
-import { StyleSheet, Text, View , SafeAreaView, StatusBar, ScrollView, TouchableOpacity} from 'react-native'
+import {StyleSheet, Text, View, StatusBar, ScrollView, TouchableOpacity} from 'react-native';
+import {SafeAreaView} from 'react-native-safe-area-context';
 import React from 'react'
 import { useStore } from '../store/store'
 import {useBottomTabBarHeight} from '@react-navigation/bottom-tabs'

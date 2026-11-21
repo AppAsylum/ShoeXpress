@@ -1,11 +1,11 @@
-import { StyleSheet, Text, View, SafeAreaView, StatusBar, ScrollView, TouchableOpacity, Image, TextInput, Dimensions, FlatList, KeyboardAvoidingView } from 'react-native';
+import {StyleSheet, Text, View, StatusBar, ScrollView, TouchableOpacity, Image, TextInput, Dimensions, FlatList, KeyboardAvoidingView, Platform} from 'react-native';
+import {SafeAreaView} from 'react-native-safe-area-context';
 import React, { useRef, useState } from 'react';
 import { useStore } from '../store/store';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { BORDERRADIUS, COLORS, FONTFAMILY, FONTSIZE, SPACING } from '../Constants/theme';
 import HeaderBar from '../components/HeaderBar';
 import ShoeCard from '../components/ShoeCard';
-import Toast from 'react-native-toast-message';
 
 
 
@@ -129,8 +129,6 @@ const calculateNumColumns = () => {
          >
           {/* App Header */}
           <HeaderBar  title='ShoeXpress'/>
-          <Toast ref={(ref)=>{Toast.setRef(ref)}} 
-        />
           <Text style={styles.screenTitle}>Find the best{'\n'}Shoe for you</Text>
 
           {/* Search Input */}

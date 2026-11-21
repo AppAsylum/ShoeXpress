@@ -63,7 +63,7 @@ import {
         prices: [{...price, quantity: 1}],
       });
       calculateCartPrice();
-      navigation.navigate('Cart');
+      navigation.popTo('Tab', {screen: 'Cart'});
     }
   
   

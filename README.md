@@ -1,3 +1,21 @@
+# ShoeXpress
+
+A shoe store app built with [Expo](https://expo.dev) (SDK 58) and React Native.
+
+## Running it
+
+```sh
+npm install
+npx expo start
+```
+
+Then scan the QR code with the Expo Go app (iOS/Android), or press `i` for the iOS simulator or `a` for the Android emulator.
+
+- `npm test`: run tests
+- `npm run lint`: lint
+
+## Screenshots
+
 <img width="400" alt="Screen Shot 2023-12-20 at 8 28 23 AM" src="https://github.com/AppAsylum/ShoeXpress/assets/145500150/0ffc229a-0112-4c9d-8732-a78b15e4e91c">
 
 <img width="391" alt="Screen Shot 2023-12-20 at 8 32 33 AM" src="https://github.com/AppAsylum/ShoeXpress/assets/145500150/884e083d-c4c5-4a83-81d4-97d94f006513">

@@ -94,7 +94,6 @@ import GradientBGIcon from './GradientBGIcon';
               <TouchableOpacity
                 onPress={() => {
                   ToggleFavourite(favourite, type, id);
-                  setFavourite(!favourite)
                 }}
                 style={{
                   borderWidth: 2,

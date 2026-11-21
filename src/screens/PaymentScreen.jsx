@@ -1,14 +1,6 @@
 import React, {useState} from 'react';
-import {
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  View,
-  Image,
-  TouchableOpacity,
-  SafeAreaView,
-} from 'react-native';
+import {ScrollView, StatusBar, StyleSheet, Text, View, Image, TouchableOpacity} from 'react-native';
+import {SafeAreaView} from 'react-native-safe-area-context';
 import {
   BORDERRADIUS,
   COLORS,
@@ -18,7 +10,7 @@ import {
 } from '../Constants/theme';
 import PaymentMethod from '../components/PaymentMethod';
 import PaymentFooter from '../components/PaymentFooter';
-import LinearGradient from 'react-native-linear-gradient';
+import {LinearGradient} from 'expo-linear-gradient';
 import {useStore} from '../store/store';
 import PopUpAnimation from '../components/PopUpAnimation';
 
@@ -63,7 +55,7 @@ const PaymentScreen = ({navigation, route}) => {
     calculateCartPrice();
     setTimeout(() => {
       setShowAnimation(false);
-      navigation.navigate('History');
+      navigation.popTo('Tab', {screen: 'History'});
     }, 2000);
   };
 

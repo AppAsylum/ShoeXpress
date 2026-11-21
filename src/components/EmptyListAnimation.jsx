@@ -1,39 +1,26 @@
-import React, {useRef} from 'react';
-import {StyleSheet, View, Text,  Dimensions} from 'react-native';
-import Video from 'react-native-video';
+import React from 'react';
+import {StyleSheet, View, Text} from 'react-native';
+import {useVideoPlayer, VideoView} from 'expo-video';
 import {COLORS, FONTFAMILY, FONTSIZE, SPACING} from '../Constants/theme';
 
-
-const {height, width} = Dimensions.get('window');
+const VIDEO_URI =
+  'https://player.vimeo.com/external/576784608.sd.mp4?s=a8ba529a3311735f4203f4666c24cd40956bea84&profile_id=165&oauth2_token_id=57447761';
 
 const EmptyListAnimation = ({title}) => {
-  const playerRef = useRef(null);
-
-  const onBuffer = () => {
-    // Callback when remote video is buffering
-    console.log('Buffering');
-  };
-
-  const videoError = () => {
-    // Callback when video cannot be loaded
-    console.log('Video Error');
-  };
+  const player = useVideoPlayer(VIDEO_URI, p => {
+    p.loop = true;
+    p.muted = true;
+    p.play();
+  });
 
   return (
     <View style={styles.EmptyCartContainer}>
       <View style={styles.animationContainer}>
-        <Video
-          source={{
-            uri: 'https://player.vimeo.com/external/576784608.sd.mp4?s=a8ba529a3311735f4203f4666c24cd40956bea84&profile_id=165&oauth2_token_id=57447761',
-          }}
-          ref={playerRef}
-          onBuffer={onBuffer}
-          onError={videoError}
+        <VideoView
+          player={player}
           style={styles.animatedVideo}
-          paused={false}
-          repeat={true} // Use repeat instead of loop
-          ignoreSilentSwitch={'obey'}
-          resizeMode="cover"
+          contentFit="cover"
+          nativeControls={false}
         />
       </View>
       <Text style={styles.animatedText}>{title}</Text>
@@ -44,7 +31,7 @@ const EmptyListAnimation = ({title}) => {
 const styles = StyleSheet.create({
   EmptyCartContainer: {
     flex: 1,
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
   animationContainer: {
     height: 150,
@@ -53,7 +40,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     alignSelf: 'center',
     overflow: 'hidden',
-    borderRadius: 20
+    borderRadius: 20,
   },
   animatedVideo: {
     position: 'absolute',
@@ -72,4 +59,3 @@ const styles = StyleSheet.create({
 });
 
 export default EmptyListAnimation;
-
