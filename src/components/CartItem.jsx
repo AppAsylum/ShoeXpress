@@ -1,210 +1,90 @@
-import {StyleSheet, Text, View, Image, TouchableOpacity} from 'react-native';
 import React from 'react';
-import LinearGradient from 'react-native-linear-gradient';
-import {
-  BORDERRADIUS,
-  COLORS,
-  FONTFAMILY,
-  FONTSIZE,
-  SPACING,
-} from '../Constants/theme';
+import {StyleSheet, Text, View} from 'react-native';
+import {Ionicons} from '@expo/vector-icons';
+import PressableScale from './ui/PressableScale';
+import ShoeImage from './ui/ShoeImage';
+import {COLORS, FONTFAMILY, FONTSIZE, RADIUS, SPACING} from '../Constants/theme';
 
-const decrementIcon = require('../assets/icons/minus.png');
-const incrementIcon = require('../assets/icons/plus.jpg')
+const Stepper = ({quantity, onMinus, onPlus}) => (
+  <View style={styles.stepper}>
+    <PressableScale onPress={onMinus} scaleTo={0.85} hitSlop={6} style={styles.stepBtn} accessibilityLabel="Decrease quantity">
+      <Ionicons name={quantity === 1 ? 'trash-outline' : 'remove'} size={16} color={COLORS.text} />
+    </PressableScale>
+    <Text style={styles.qty}>{quantity}</Text>
+    <PressableScale onPress={onPlus} scaleTo={0.85} hitSlop={6} style={[styles.stepBtn, styles.stepPlus]} accessibilityLabel="Increase quantity">
+      <Ionicons name="add" size={16} color={COLORS.onAccent} />
+    </PressableScale>
+  </View>
+);
 
-// Import statements
-
-const CartItem = ({
-  id,
-  name,
-  imagelink_square,
-  prices,
-  type,
-  incrementCartItemQuantity, // Updated prop name
-  decrementCartItemQuantity,
-}) => {
-  const isMultiplePrices = prices.length !== 1;
-
-  return (
-    <LinearGradient
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      colors={[
-        isMultiplePrices
-          ? COLORS.primaryGreyHex
-          : COLORS.primaryLightGreyHex,
-        COLORS.primaryBlackHex,
-      ]}
-      style={styles.cartItemLinearGradient}
-    >
-      <View style={styles.cartItemRow}>
-        <Image source={imagelink_square} style={styles.cartItemImage} />
-        <View style={styles.cartItemInfo}>
-          <View>
-            <Text style={styles.cartItemTitle}>{name}</Text>
-          </View>
-        </View>
+// One cart line per product, with a row per selected size.
+const CartItem = ({item, onPress, onIncrement, onDecrement}) => (
+  <PressableScale onPress={onPress} scaleTo={0.98} style={styles.card}>
+    <View style={styles.top}>
+      <ShoeImage source={item.imagelink_square} style={styles.image} />
+      <View style={styles.meta}>
+        <Text style={styles.brand}>{item.name}</Text>
+        <Text style={styles.model} numberOfLines={2}>{item.model}</Text>
+        {item.ItemPrice ? <Text style={styles.total}>${item.ItemPrice}</Text> : null}
       </View>
-      {prices.map((data, index) => (
-        <View
-          key={index.toString()}
-          style={styles.cartItemSizeRowContainer}
-        >
-          <View style={styles.cartItemSizeValueContainer}>
-            <View style={styles.sizeBox}>
-              <Text
-                style={[
-                  styles.sizeText,
-                  {
-                    fontSize: type === 'Shoe' ? FONTSIZE.size_16 : null,
-                  },
-                ]}
-              >
-                {data.size}
-              </Text>
-            </View>
-
-            <View style={{ position: 'relative', right: -10 }}>
-              <Text style={styles.sizeCurrency}>
-                {data.currency}
-                <Text style={styles.sizePrice}>{data.price}</Text>
-              </Text>
-            </View>
-          </View>
-          <View style={styles.cartItemSizeValueContainer2}>
-            <TouchableOpacity
-              onPress={() => {
-                decrementCartItemQuantity(id, data.size);
-              }}
-              style={styles.cartItemIcon}
-            >
-              <Image
-                source={decrementIcon}
-                style={{
-                  height: FONTSIZE.size_10,
-                  width: FONTSIZE.size_10,
-                }}
-              />
-            </TouchableOpacity>
-            <View style={styles.cartQuantityContainer}>
-              <Text style={styles.cardItemQuantityText}>
-                {data.quantity}
-              </Text>
-            </View>
-            <TouchableOpacity
-              onPress={() => {
-                incrementCartItemQuantity(id, data.size);
-              }}
-              style={styles.cartItemIcon}
-            >
-              <Image
-                source={incrementIcon}
-                style={{
-                  height: FONTSIZE.size_10,
-                  width: FONTSIZE.size_10,
-                }}
-              />
-            </TouchableOpacity>
-          </View>
+    </View>
+    {item.prices.map(p => (
+      <View key={p.size} style={styles.line}>
+        <View style={styles.sizeChip}>
+          <Text style={styles.sizeLabel}>US</Text>
+          <Text style={styles.sizeValue}>{p.size}</Text>
         </View>
-      ))}
-    </LinearGradient>
-  );
-};
+        <Text style={styles.unit}>${p.price}</Text>
+        <Stepper
+          quantity={p.quantity}
+          onMinus={() => onDecrement(item.id, p.size)}
+          onPlus={() => onIncrement(item.id, p.size)}
+        />
+      </View>
+    ))}
+  </PressableScale>
+);
 
 export default CartItem;
 
-// StyleSheet.create and other constants...
-
-
 const styles = StyleSheet.create({
-  cartItemLinearGradient: {
-    flex: 1,
-    gap: SPACING.space_12,
-    padding: SPACING.space_12,
-    borderRadius: BORDERRADIUS.radius_25,
+  card: {
+    backgroundColor: COLORS.surface,
+    borderRadius: RADIUS.lg,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    padding: SPACING.sm,
+    gap: SPACING.xs,
   },
-  cartItemRow: {
+  top: {flexDirection: 'row', gap: SPACING.md, marginBottom: SPACING.xxs},
+  image: {width: 88, height: 88, borderRadius: RADIUS.md},
+  meta: {flex: 1, justifyContent: 'center'},
+  brand: {fontFamily: FONTFAMILY.medium, fontSize: FONTSIZE.xs, color: COLORS.textMuted, textTransform: 'uppercase', letterSpacing: 0.8},
+  model: {fontFamily: FONTFAMILY.semibold, fontSize: FONTSIZE.md, color: COLORS.text, marginTop: 2},
+  total: {fontFamily: FONTFAMILY.bold, fontSize: FONTSIZE.lg, color: COLORS.accent, marginTop: 4},
+  line: {
     flexDirection: 'row',
-    gap: SPACING.space_12,
-    flex: 1,
-  },
-  cartItemImage: {
-    height: 130,
-    width: 130,
-    borderRadius: BORDERRADIUS.radius_20,
-  },
-  cartItemInfo: {
-    flex: 1,
-    paddingVertical: SPACING.space_4,
-    justifyContent: 'space-between',
-  },
-  cartItemTitle: {
-    fontFamily: FONTFAMILY.poppins_medium,
-    fontSize: FONTSIZE.size_18,
-    color: COLORS.primaryWhiteHex,
-  },
-  cartItemSizeRowContainer: {
-    flex: 1,
     alignItems: 'center',
-    gap: SPACING.space_20,
-    flexDirection: 'row',
+    backgroundColor: COLORS.surfaceRaised,
+    borderRadius: RADIUS.md,
+    paddingVertical: SPACING.xs,
+    paddingHorizontal: SPACING.sm,
+  },
+  sizeChip: {flexDirection: 'row', alignItems: 'baseline', gap: 4, width: 64},
+  sizeLabel: {fontFamily: FONTFAMILY.medium, fontSize: FONTSIZE.xs, color: COLORS.textFaint},
+  sizeValue: {fontFamily: FONTFAMILY.semibold, fontSize: FONTSIZE.md, color: COLORS.text},
+  unit: {flex: 1, fontFamily: FONTFAMILY.medium, fontSize: FONTSIZE.sm, color: COLORS.textMuted},
+  stepper: {flexDirection: 'row', alignItems: 'center', gap: SPACING.sm},
+  stepBtn: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: COLORS.surface,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    alignItems: 'center',
     justifyContent: 'center',
-    // backgroundColor: 'red'
   },
-  cartItemSizeValueContainer: {
-    flex: 1,
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  cartItemSizeValueContainer2: {
-    flex: 0.98,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    // paddingBottom: 5,
-    // backgroundColor: 'yellow'
-  },
-  sizeBox: {
-    backgroundColor: COLORS.primaryBlackHex,
-    height: 40,
-    width: 100,
-    borderRadius: BORDERRADIUS.radius_10,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  sizeText: {
-    fontFamily: FONTFAMILY.poppins_medium,
-    color: COLORS.secondaryLightGreyHex,
-  },
-  sizeCurrency: {
-    fontFamily: FONTFAMILY.poppins_semibold,
-    color: COLORS.primaryOrangeHex,
-    fontSize: FONTSIZE.size_18
-  },
-  sizePrice: {
-    color: COLORS.primaryWhiteHex,
-  },
-  cartItemIcon: {
-    backgroundColor: COLORS.primaryOrangeHex,
-    padding: SPACING.space_12,
-    borderRadius: BORDERRADIUS.radius_10,
-    width: 35
-  },
-  cartQuantityContainer: {
-    flex: 0.7,
-    backgroundColor: COLORS.primaryBlackHex,
-    borderRadius: BORDERRADIUS.radius_10,
-    borderWidth: 2,
-    borderColor: COLORS.primaryOrangeHex,
-    alignItems: 'center',
-    paddingVertical: SPACING.space_4,
-  },
-  cardItemQuantityText: {
-    fontFamily: FONTFAMILY.poppins_semibold,
-    fontSize: FONTSIZE.size_16,
-    color: COLORS.primaryWhiteHex
-  }
+  stepPlus: {backgroundColor: COLORS.accent, borderColor: COLORS.accent},
+  qty: {fontFamily: FONTFAMILY.semibold, fontSize: FONTSIZE.md, color: COLORS.text, minWidth: 18, textAlign: 'center'},
 });
-

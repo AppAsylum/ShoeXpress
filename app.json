@@ -1,4 +1,39 @@
 {
-  "name": "ShoeXpress",
-  "displayName": "ShoeXpress"
+  "expo": {
+    "name": "ShoeXpress",
+    "slug": "shoexpress",
+    "version": "2.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#0B0B0D",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.appasylum.shoexpress"
+    },
+    "android": {
+      "package": "com.appasylum.shoexpress",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0B0B0D"
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-status-bar",
+      "expo-font",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#0B0B0D"
+        }
+      ],
+      "expo-image"
+    ]
+  }
 }
